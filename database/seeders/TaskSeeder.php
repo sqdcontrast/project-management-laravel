@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Database\Seeder;
 
 class TaskSeeder extends Seeder
@@ -12,6 +13,17 @@ class TaskSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $projects = Project::all();
+
+        $projects->each(function ($project) {
+
+            $tasks = Task::factory(2)->create([
+                'project_id' => $project->id,
+            ]);
+
+            $tasks->each(function ($task) use ($project) {
+                $project->members()->attach($task->assignedUser);
+            });
+        });
     }
 }
