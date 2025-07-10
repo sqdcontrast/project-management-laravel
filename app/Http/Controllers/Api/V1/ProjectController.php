@@ -23,10 +23,9 @@ class ProjectController extends Controller
 
         $user = auth()->user();
 
-        $projectData['created_by'] = $user->id;
+        $project = $user->projects()->create($projectData);
 
-        $project = Project::create($projectData);
-        $project->members()->attach($user);
+        $user->joinedProjects()->attach($project);
 
         return response()->json($project);
     }
