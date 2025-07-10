@@ -79,4 +79,51 @@ class ProjectTest extends TestCase
 
         $this->assertDatabaseMissing('projects', $project->toArray());
     }
+
+    public function test_admin_can_add_user_to_project(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $user = User::factory()->create([
+            'role' => 'member',
+        ]);
+
+        $project = Project::factory()->create();
+
+        Sanctum::actingAs($admin);
+
+        $this->postJson(route('projects.users.store', $project), [
+            'user_id' => $user->id,
+        ]);
+
+        $this->assertDatabaseHas('project_user', [
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+        ]);
+    }
+
+    public function test_admin_can_remove_user_from_project(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $user = User::factory()->create([
+            'role' => 'member',
+        ]);
+
+        $project = Project::factory()->create();
+        $project->members()->attach($user);
+
+        Sanctum::actingAs($admin);
+
+        $this->deleteJson(route('projects.users.destroy', [$project, $user]));
+
+        $this->assertDatabaseMissing('project_user', [
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+        ]);
+    }
 }

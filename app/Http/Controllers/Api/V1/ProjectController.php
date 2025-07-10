@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\User;
 use App\Models\Project;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 
@@ -50,6 +53,26 @@ class ProjectController extends Controller
 
         return response()->json([
             'message' => 'Project deleted.'
+        ]);
+    }
+
+    public function addUser(UserProjectRequest $request, Project $project): JsonResponse
+    {
+        $userId = $request->validated('user_id');
+
+        $project->members()->syncWithoutDetaching([$userId]);
+
+        return response()->json([
+            'message' => "User added to project."
+        ]);
+    }
+
+    public function removeUser(Project $project, User $user): JsonResponse
+    {
+        $project->members()->detach($user->id);
+
+        return response()->json([
+            'message' => "User removed from project."
         ]);
     }
 }
