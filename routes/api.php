@@ -16,4 +16,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::apiResource('projects', ProjectController::class);
     Route::post('projects/{project}/users', [ProjectController::class, 'addUser'])->name('projects.users.store');
     Route::delete('projects/{project}/users/{user}', [ProjectController::class, 'removeUser'])->name('projects.users.destroy');
+
+    Route::apiResource('projects.tasks', TaskController::class)->shallow();
 });
