@@ -24,6 +24,18 @@ class TaskController extends Controller
             'assigned_to' => ['nullable', 'exists:users,id']
         ]);
 
+        $assignedId = $request->input('assigned_to');
+
+        $canAssign = $assignedId
+            ? $project->members()->where('user_id', $assignedId)->exists()
+            : true;
+
+        if (!$canAssign) {
+            return response()->json([
+                'error' => 'Assigned user is not member of this project.'
+            ], 422);
+        }
+
         $task = $project->tasks()->create($taskData);
 
         return response()->json($task);
