@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -54,6 +55,18 @@ class TaskController extends Controller
             'assigned_to' => ['nullable', 'exists:users,id']
         ]);
 
+        $assignedId = $request->input('assigned_to');
+
+        $canAssign = $assignedId
+            ? $task->project->members()->where('user_id', $assignedId)->exists()
+            : true;
+
+        if (!$canAssign) {
+            return response()->json([
+                'error' => 'Assigned user is not member of this project.'
+            ], 422);
+        }
+
         $task->update($taskData);
 
         return response()->json($task);
@@ -67,4 +80,5 @@ class TaskController extends Controller
             'message' => 'Task deleted.'
         ]);
     }
+    
 }
