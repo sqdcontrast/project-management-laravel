@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Project;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class UpdateProjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,8 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'unique:users', 'max:255'],
-            'password' => ['required', 'string', 'confirmed', 'min:8', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', 'string', 'in:active,completed'],
         ];
     }
 }
