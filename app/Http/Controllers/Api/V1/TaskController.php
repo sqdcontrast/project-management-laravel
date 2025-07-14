@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Task;
-use App\Models\User;
 use App\Models\Project;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Task\StoreTaskRequest;
+use App\Http\Requests\Task\UpdateTaskRequest;
 
 class TaskController extends Controller
 {
@@ -18,12 +18,9 @@ class TaskController extends Controller
         return response()->json($tasks);
     }
 
-    public function store(Request $request, Project $project): JsonResponse
+    public function store(StoreTaskRequest $request, Project $project): JsonResponse
     {
-        $taskData = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'assigned_to' => ['nullable', 'exists:users,id']
-        ]);
+        $taskData = $request->validated();
 
         $assignedId = $request->input('assigned_to');
 
@@ -47,13 +44,9 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    public function update(Request $request, Task $task): JsonResponse
+    public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
-        $taskData = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:to_do,in_progress,done'],
-            'assigned_to' => ['nullable', 'exists:users,id']
-        ]);
+        $taskData = $request->validated();
 
         $assignedId = $request->input('assigned_to');
 
