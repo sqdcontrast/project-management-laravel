@@ -9,11 +9,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\UserProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Project::class);
+
         $projects = Project::query()->paginate(10);
 
         return response()->json($projects);
@@ -21,6 +26,8 @@ class ProjectController extends Controller
 
     public function store(StoreProjectRequest $request): JsonResponse
     {
+        $this->authorize('create', Project::class);
+
         $projectData = $request->validated();
 
         $user = auth()->user();
@@ -34,11 +41,15 @@ class ProjectController extends Controller
 
     public function show(Project $project): JsonResponse
     {
+        $this->authorize('view', $project);
+
         return response()->json($project);
     }
 
     public function update(UpdateProjectRequest $request, Project $project): JsonResponse
     {
+        $this->authorize('update', $project);
+
         $projectData = $request->validated();
 
         $project->update($projectData);
@@ -48,6 +59,8 @@ class ProjectController extends Controller
 
     public function destroy(Project $project): JsonResponse
     {
+        $this->authorize('delete', $project);
+
         $project->delete();
 
         return response()->json([
