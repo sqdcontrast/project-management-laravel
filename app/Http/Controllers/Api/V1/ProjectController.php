@@ -70,6 +70,8 @@ class ProjectController extends Controller
 
     public function addUser(UserProjectRequest $request, Project $project): JsonResponse
     {
+        $this->authorize('addUser', $project);
+
         $userId = $request->validated('user_id');
 
         $project->members()->syncWithoutDetaching([$userId]);
@@ -81,6 +83,8 @@ class ProjectController extends Controller
 
     public function removeUser(Project $project, User $user): JsonResponse
     {
+        $this->authorize('addUser', $project);
+
         $project->members()->detach($user->id);
 
         return response()->json([

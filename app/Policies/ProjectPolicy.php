@@ -31,4 +31,14 @@ class ProjectPolicy
     {
         return $user->role === 'admin';
     }
+
+    public function addUser(User $user, Project $project): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function removeUser(User $user, Project $project): bool
+    {
+        return $user->role === 'admin';
+    }
 }
