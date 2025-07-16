@@ -19,7 +19,11 @@ class ProjectController extends Controller
     {
         $this->authorize('viewAny', Project::class);
 
-        $projects = Project::query()->paginate(10);
+        $user = auth()->user();
+
+        $projects = Project::query()
+            ->visibleTo($user)
+            ->paginate(10);
 
         return response()->json($projects);
     }
