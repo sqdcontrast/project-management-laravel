@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Project;
 
 class TaskPolicy
 {
@@ -17,9 +18,9 @@ class TaskPolicy
         return $this->canManage($user, $task);
     }
 
-    public function create(User $user): bool
+    public function create(User $user, Project $project): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdmin() || $this->isProjectOwner($user, $project);
     }
 
     public function update(User $user, Task $task): bool
@@ -29,15 +30,7 @@ class TaskPolicy
 
     public function delete(User $user, Task $task): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($user->isManager() && $task->project->created_by === $user->id) {
-            return true;
-        }
-
-        return false;
+        return $user->isAdmin() || $this->isProjectOwner($user, $task->project);
     }
 
     protected function canManage(User $user, Task $task): bool
@@ -46,10 +39,15 @@ class TaskPolicy
             return true;
         }
 
-        if ($user->isManager() && $task->project->created_by === $user->id) {
+        if ($this->isProjectOwner($user, $task->project)) {
             return true;
         }
 
-        return $user->id === $task->assigned_to;
+        return $task->assigned_to === $user->id;
+    }
+
+    protected function isProjectOwner(User $user, Project $project): bool
+    {
+        return $user->isManager() && $project->created_by === $user->id;
     }
 }
