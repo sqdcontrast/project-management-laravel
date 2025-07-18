@@ -8,18 +8,25 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TaskController extends Controller
 {
-    public function index(): JsonResponse
+    use AuthorizesRequests;
+
+    public function index(Project $project): JsonResponse
     {
-        $tasks = Task::query()->paginate(10);
+        $this->authorize('viewAny', [Task::class, $project]);
+
+        $tasks = $project->tasks()->paginate(10);
 
         return response()->json($tasks);
     }
 
     public function store(StoreTaskRequest $request, Project $project): JsonResponse
     {
+        $this->authorize('create', [Task::class, $project]);
+
         $taskData = $request->validated();
 
         $assignedId = $request->input('assigned_to');
@@ -41,11 +48,15 @@ class TaskController extends Controller
 
     public function show(Task $task): JsonResponse
     {
+        $this->authorize('view', $task);
+
         return response()->json($task);
     }
 
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
+        $this->authorize('update', $task);
+
         $taskData = $request->validated();
 
         $assignedId = $request->input('assigned_to');
@@ -67,11 +78,12 @@ class TaskController extends Controller
 
     public function destroy(Task $task): JsonResponse
     {
+        $this->authorize('delete', $task);
+
         $task->delete();
 
         return response()->json([
             'message' => 'Task deleted.'
         ]);
     }
-    
 }
