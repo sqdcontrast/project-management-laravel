@@ -14,15 +14,7 @@ class ProjectPolicy
 
     public function view(User $user, Project $project): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($user->isManager() && $project->created_by === $user->id) {
-            return true;
-        }
-
-        return $project->members()->where('user_id', $user->id)->exists();
+        return $this->canManage($user, $project) || $project->members()->where('user_id', $user->id)->exists();
     }
 
     public function create(User $user): bool
@@ -56,10 +48,15 @@ class ProjectPolicy
             return true;
         }
 
-        if ($user->isManager() && $project->created_by === $user->id) {
+        if ($this->isProjectOwner($user, $project)) {
             return true;
         }
 
         return false;
+    }
+
+    protected function isProjectOwner(User $user, Project $project): bool
+    {
+        return $user->isManager() && $project->created_by === $user->id;
     }
 }
