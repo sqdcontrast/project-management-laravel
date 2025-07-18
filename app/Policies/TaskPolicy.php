@@ -8,9 +8,9 @@ use App\Models\Project;
 
 class TaskPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, Project $project): bool
     {
-        return true;
+        return $user->isAdmin() || $project->members()->where('user_id', $user->id)->exists();
     }
 
     public function view(User $user, Task $task): bool
