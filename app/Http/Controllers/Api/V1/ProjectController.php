@@ -9,13 +9,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\UserProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
+use App\Http\Resources\ProjectResource;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProjectController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(): JsonResponse
+    public function index(): JsonResource
     {
         $this->authorize('viewAny', Project::class);
 
@@ -25,10 +27,10 @@ class ProjectController extends Controller
             ->visibleTo($user)
             ->paginate(10);
 
-        return response()->json($projects);
+        return ProjectResource::collection($projects);
     }
 
-    public function store(StoreProjectRequest $request): JsonResponse
+    public function store(StoreProjectRequest $request): JsonResource
     {
         $this->authorize('create', Project::class);
 
@@ -40,17 +42,17 @@ class ProjectController extends Controller
 
         $user->joinedProjects()->attach($project);
 
-        return response()->json($project);
+        return ProjectResource::make($project);
     }
 
-    public function show(Project $project): JsonResponse
+    public function show(Project $project): JsonResource
     {
         $this->authorize('view', $project);
 
-        return response()->json($project);
+        return ProjectResource::make($project);
     }
 
-    public function update(UpdateProjectRequest $request, Project $project): JsonResponse
+    public function update(UpdateProjectRequest $request, Project $project): JsonResource
     {
         $this->authorize('update', $project);
 
@@ -58,7 +60,7 @@ class ProjectController extends Controller
 
         $project->update($projectData);
 
-        return response()->json($project);
+        return ProjectResource::make($project);
     }
 
     public function destroy(Project $project): JsonResponse
