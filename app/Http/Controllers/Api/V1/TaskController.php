@@ -6,21 +6,23 @@ use App\Models\Task;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TaskResource;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TaskController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Project $project): JsonResponse
+    public function index(Project $project): JsonResource
     {
         $this->authorize('viewAny', [Task::class, $project]);
 
         $tasks = $project->tasks()->paginate(10);
 
-        return response()->json($tasks);
+        return TaskResource::collection($tasks);
     }
 
     public function store(StoreTaskRequest $request, Project $project): JsonResponse
@@ -43,14 +45,14 @@ class TaskController extends Controller
 
         $task = $project->tasks()->create($taskData);
 
-        return response()->json($task);
+        return TaskResource::make($task)->response();
     }
 
-    public function show(Task $task): JsonResponse
+    public function show(Task $task): JsonResource
     {
         $this->authorize('view', $task);
 
-        return response()->json($task);
+        return TaskResource::make($task);
     }
 
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
@@ -73,7 +75,7 @@ class TaskController extends Controller
 
         $task->update($taskData);
 
-        return response()->json($task);
+        return TaskResource::make($task)->response();
     }
 
     public function destroy(Task $task): JsonResponse
