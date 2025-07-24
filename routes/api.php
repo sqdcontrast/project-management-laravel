@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\TaskController;
@@ -18,4 +19,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::delete('projects/{project}/users/{user}', [ProjectController::class, 'removeUser'])->name('projects.users.destroy');
 
     Route::apiResource('projects.tasks', TaskController::class)->shallow();
+
+    Route::get('user', [UserController::class, 'show']);
 });
